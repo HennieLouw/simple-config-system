@@ -36,7 +36,7 @@
 
     <scm>
         <connection>scm:git:http://github.com/HennieLouw/simple-config-system.git</connection>
-        <developerConnection>scm:git:git://github.com:HennieLouw/simple-config-system.git</developerConnection>
-        <url>scm:git:http://github.com/HennieLouw/simple-config-system.git</url>
+        <url>scm:git:git@github.com:HennieLouw/simple-config-system.git</url>
+        <developerConnection>scm:git:git@github.com:HennieLouw/simple-config-system.git</developerConnection>
     </scm>
 </project>
