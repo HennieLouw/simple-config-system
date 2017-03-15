@@ -3,14 +3,26 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.github.hennielouw.scs</groupId>
-        <artifactId>parent</artifactId>
+        <groupId>com.github.scs</groupId>
+        <artifactId>scs-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>api</artifactId>
+    <artifactId>scs-api</artifactId>
     <packaging>jar</packaging>
-    <name>api</name>
+    <name>scs-api</name>
     <dependencies>
+
+        <!-- Logging API SLF4J -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

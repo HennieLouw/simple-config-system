@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.github.hennielouw.scs</groupId>
-    <artifactId>parent</artifactId>
+    <groupId>com.github.scs</groupId>
+    <artifactId>scs-parent</artifactId>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
-    <name>parent</name>
+    <name>scs-parent</name>
     <url>https://github.com/HennieLouw/simple-config-system</url>
     <description>A simple library to add configuration support to an application.</description>
 
@@ -15,7 +15,21 @@
         <module>impl</module>
     </modules>
 
+    <properties>
+        <depedency.slf4j.version>1.7.24</depedency.slf4j.version>
+        <dependency.junit.version>3.8.1</dependency.junit.version>
+        <depedency.commons-lang3.version>3.5</depedency.commons-lang3.version>
+    </properties>
+
     <dependencies>
+
+        <!-- Simple SLF4J Logging Binding for our unit tests. -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -26,9 +40,27 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${depedency.commons-lang3.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${depedency.slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-simple</artifactId>
+                <version>${depedency.slf4j.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>3.8.1</version>
+                <version>${dependency.junit.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>

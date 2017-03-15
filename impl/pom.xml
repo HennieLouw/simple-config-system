@@ -4,13 +4,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.github.hennielouw.scs</groupId>
-        <artifactId>parent</artifactId>
+        <groupId>com.github.scs</groupId>
+        <artifactId>scs-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
-    <artifactId>impl</artifactId>
+    <artifactId>scs-impl</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>impl</name>
+    <name>scs-impl</name>
     <url>http://maven.apache.org</url>
     <dependencies>
         <dependency>
