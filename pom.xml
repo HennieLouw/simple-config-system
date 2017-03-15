@@ -8,6 +8,7 @@
     <version>1.0-SNAPSHOT</version>
     <name>parent</name>
     <url>https://github.com/HennieLouw/simple-config-system</url>
+    <description>A simple library to add configuration support to an application.</description>
 
     <modules>
         <module>api</module>
@@ -32,4 +33,10 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <scm>
+        <connection>scm:git:http://github.com/HennieLouw/simple-config-system.git</connection>
+        <developerConnection>scm:git:git://github.com:HennieLouw/simple-config-system.git</developerConnection>
+        <url>scm:git:http://github.com/HennieLouw/simple-config-system.git</url>
+    </scm>
 </project>
