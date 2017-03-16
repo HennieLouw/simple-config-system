@@ -18,7 +18,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * A implementation of the sorted configuration sources which uses a Sorted Tree Set to perform the
- * sorting by wrapping the sources in a {@link SortedConfigurationSource} instance.
+ * sorting by wrapping the sources in a {@link PrioritisedConfigurationSource} instance.
  *
  * @author Hendrik Louw
  * @since 2017-03-15.
@@ -45,7 +45,7 @@ public class SortedTreeSetConfigurationSource implements PriorityOrderedSources 
     private static final Logger LOG = LoggerFactory.getLogger(SortedTreeSetConfigurationSource.class);
 
     /** The tree set of configurations which are already sorted. */
-    private SortedSet<SortedConfigurationSource> sortedConfigurations;
+    private SortedSet<PrioritisedConfigurationSource> sortedConfigurations;
 
     /** The write strategy which must be used. */
     private WriteStrategy writeStrategy;
@@ -84,7 +84,7 @@ public class SortedTreeSetConfigurationSource implements PriorityOrderedSources 
      */
     public SortedTreeSetConfigurationSource(WriteStrategy writeStrategy) {
         this.writeStrategy = writeStrategy;
-        this.sortedConfigurations = new TreeSet<SortedConfigurationSource>();
+        this.sortedConfigurations = new TreeSet<PrioritisedConfigurationSource>();
         locks = new ReentrantReadWriteLock();
         internalId = UUID.randomUUID();
     }
@@ -98,7 +98,7 @@ public class SortedTreeSetConfigurationSource implements PriorityOrderedSources 
         Lock readLock = locks.readLock();
         try {
             readLock.lock();
-            for (SortedConfigurationSource source : sortedConfigurations) {
+            for (PrioritisedConfigurationSource source : sortedConfigurations) {
                 LOG.debug("Attempting key lookup from source [{}]", source);
                 String value = source.retrieve(key);
                 if (StringUtils.isNotBlank(value)) {
@@ -114,11 +114,11 @@ public class SortedTreeSetConfigurationSource implements PriorityOrderedSources 
     }
 
     public void addSource(ConfigurationSource source, int priority) {
-        SortedConfigurationSource sortedConfig = new SortedConfigurationSource(source, priority);
+        PrioritisedConfigurationSource sortedConfig = new PrioritisedConfigurationSource(source, priority);
         addSource(sortedConfig);
     }
 
-    private void addSource(SortedConfigurationSource source) {
+    private void addSource(PrioritisedConfigurationSource source) {
         Lock writeLock = locks.writeLock();
         try {
             writeLock.lock();
@@ -134,9 +134,9 @@ public class SortedTreeSetConfigurationSource implements PriorityOrderedSources 
         try {
             writeLock.lock();
             LOG.debug("Searching configured sources for ConfigurationSource[{}] to be removed.", source);
-            Iterator<SortedConfigurationSource> sortedConfigIterator = sortedConfigurations.iterator();
+            Iterator<PrioritisedConfigurationSource> sortedConfigIterator = sortedConfigurations.iterator();
             while (sortedConfigIterator.hasNext()) {
-                SortedConfigurationSource sortedConfig = sortedConfigIterator.next();
+                PrioritisedConfigurationSource sortedConfig = sortedConfigIterator.next();
                 // In rare cases, we may have our internal wrapper given for removal. In those cases we need to do both checks.
                 if (sortedConfig.equals(source) || sortedConfig.underlyingEquals(source)) {
                     LOG.debug("Found instance of ConfigurationSource with priority of [{}] and removing.", sortedConfig.getPriority());
@@ -180,7 +180,7 @@ public class SortedTreeSetConfigurationSource implements PriorityOrderedSources 
     }
 
     private void storeAll(String key, String value) {
-        for (SortedConfigurationSource sortedSource : sortedConfigurations) {
+        for (PrioritisedConfigurationSource sortedSource : sortedConfigurations) {
             if (sortedSource.isEncapsulatingWritable()) {
                 sortedSource.store(key, value);
             }
@@ -188,7 +188,7 @@ public class SortedTreeSetConfigurationSource implements PriorityOrderedSources 
     }
 
     private void storeHighest(String key, String value) {
-        for (SortedConfigurationSource sortedSource : sortedConfigurations) {
+        for (PrioritisedConfigurationSource sortedSource : sortedConfigurations) {
             if (sortedSource.isEncapsulatingWritable()) {
                 sortedSource.store(key, value);
                 break; // Stop after the first writable one has been found.
@@ -199,9 +199,9 @@ public class SortedTreeSetConfigurationSource implements PriorityOrderedSources 
     private void storeLowest(String key, String value) {
         // To store on the lowest, we need to invert the ordering.
         Comparator<Object> reverseOrder = Collections.reverseOrder();
-        TreeSet<SortedConfigurationSource> reverseSet = new TreeSet<SortedConfigurationSource>(reverseOrder);
+        TreeSet<PrioritisedConfigurationSource> reverseSet = new TreeSet<PrioritisedConfigurationSource>(reverseOrder);
         reverseSet.addAll(this.sortedConfigurations);
-        for (SortedConfigurationSource sortedSource : reverseSet) {
+        for (PrioritisedConfigurationSource sortedSource : reverseSet) {
             if (sortedSource.isEncapsulatingWritable()) {
                 sortedSource.store(key, value);
                 break; // Stop after the first writable one has been found.

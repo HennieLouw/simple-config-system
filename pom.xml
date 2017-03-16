@@ -19,6 +19,7 @@
         <depedency.slf4j.version>1.7.24</depedency.slf4j.version>
         <dependency.junit.version>3.8.1</dependency.junit.version>
         <depedency.commons-lang3.version>3.5</depedency.commons-lang3.version>
+        <dependency.commons-collections4.version>4.1</dependency.commons-collections4.version>
     </properties>
 
     <dependencies>
@@ -43,6 +44,12 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>${depedency.commons-lang3.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>${dependency.commons-collections4.version}</version>
             </dependency>
 
             <dependency>

@@ -13,12 +13,12 @@ import java.util.UUID;
  * An implementation of a ConfigurationSource which does not actually implement the logic of retrieving the configuration
  * entry, but instead adds an additional meta data information that the underlying source it delegates to has some priority.
  * <p>
- * Note, the priority is encapsulated in a numerical value where lower numbers are more important than higher numbers.
+ * Note, the priority is encapsulated in a numerical value where lower numbers are more important than higher numbers, i.e. natural sorting of the priority.
  *
  * @author Hendrik Louw
  * @since 2017-03-15.
  */
-public class SortedConfigurationSource implements Comparable<SortedConfigurationSource>, ConfigurationSource, WritableConfigurationSource {
+public class PrioritisedConfigurationSource implements Comparable<PrioritisedConfigurationSource>, ConfigurationSource, WritableConfigurationSource {
 
     /** The priority value for the source, lower numbers are considered more important than higher. */
     private int priority;
@@ -32,7 +32,7 @@ public class SortedConfigurationSource implements Comparable<SortedConfiguration
      * @param source   The source to delegate {@link #retrieve(String)} to.
      * @param priority The priority of the delegating source.
      */
-    public SortedConfigurationSource(ConfigurationSource source, int priority) {
+    public PrioritisedConfigurationSource(ConfigurationSource source, int priority) {
         this.underlyingSource = source;
         this.priority = priority;
     }
@@ -53,7 +53,7 @@ public class SortedConfigurationSource implements Comparable<SortedConfiguration
         return underlyingSource.retrieve(key);
     }
 
-    public int compareTo(SortedConfigurationSource that) {
+    public int compareTo(PrioritisedConfigurationSource that) {
         CompareToBuilder compareTo = new CompareToBuilder();
         compareTo.append(this.getPriority(), that.getPriority());
         return compareTo.toComparison();
@@ -86,7 +86,7 @@ public class SortedConfigurationSource implements Comparable<SortedConfiguration
             return false;
         }
 
-        SortedConfigurationSource that = (SortedConfigurationSource) o;
+        PrioritisedConfigurationSource that = (PrioritisedConfigurationSource) o;
         EqualsBuilder eqBuilder = new EqualsBuilder();
         eqBuilder.append(underlyingSource.getUUID(), that.underlyingSource.getUUID());
         return eqBuilder.isEquals();
