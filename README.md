@@ -1,6 +1,6 @@
-#Simple Application Configuration Library
+# Simple Application Configuration Library
 
-##Introduction
+## Introduction
 
 A Java framework to read and update an configuration entries which is being used in your 
 application with support for many different 'sources' where the configuration values can 
@@ -8,7 +8,7 @@ come from with ability to update the internal setup of the framework during runt
 
 Generic implementations of 'common' types of sources are also provided for ease of use.
 
-##Maven Module Structure.
+## Maven Module Structure.
 
 The Framework is broken down into three main maven dependencies.
  - scs-parent - The parent pom.
