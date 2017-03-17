@@ -12,7 +12,7 @@ import org.apache.commons.collections4.Predicate;
  */
 public class PrioritisedSourcePredicate implements Predicate<ConfigurationSource> {
 
-    /** Gobal instance for ease of use. */
+    /** Global instance for ease of use. */
     public static final PrioritisedSourcePredicate INSTANCE = new PrioritisedSourcePredicate();
 
     public boolean evaluate(ConfigurationSource object) {

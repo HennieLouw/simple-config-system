@@ -6,8 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -17,76 +15,67 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * A implementation of the sorted configuration sources which uses a Sorted Tree Set to perform the
+ * A implementation of the sorted configuration sources which uses a Tree Set to perform the
  * sorting by wrapping the sources in a {@link PrioritisedConfigurationSource} instance.
  *
  * @author Hendrik Louw
  * @since 2017-03-15.
  */
-public class SortedTreeSetConfigurationSource implements PriorityOrderedSources {
-
-    /**
-     * The strategy which must be followed when configuration entries are being stored.
-     *
-     * @author Hennie Louw.
-     */
-    public enum WriteStrategy {
-        /** All underlying sources which are writable must be delegated to. */
-        ALL,
-
-        /** Only the first highest priority writable source must be delegated to. */
-        HIGHEST,
-
-        /** Only the first lowest priority writable source must be delegated to. */
-        LOWEST
-    }
+@SuppressWarnings({"WeakerAccess", "SameParameterValue"})
+public class PrioritisedConfigurationSources implements PriorityOrderedSources {
 
     /** The logger we will use. */
-    private static final Logger LOG = LoggerFactory.getLogger(SortedTreeSetConfigurationSource.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PrioritisedConfigurationSources.class);
 
     /** The tree set of configurations which are already sorted. */
-    private SortedSet<PrioritisedConfigurationSource> sortedConfigurations;
+    private final SortedSet<PrioritisedConfigurationSource> sortedConfigurations;
 
     /** The write strategy which must be used. */
-    private WriteStrategy writeStrategy;
+    private final ConfigurationSourcesWriteStrategy writeStrategy;
 
     /** The read/write locks which are used for concurrency. */
-    private ReadWriteLock locks;
+    private final ReadWriteLock locks;
 
     /** Our UUID. */
     private final UUID internalId;
 
-    /**
-     * Creates an instance with the {@link WriteStrategy#ALL ALL} write strategy.
-     */
-    public SortedTreeSetConfigurationSource() {
-        this(WriteStrategy.ALL);
+    /** Creates an empty instance with the {@link ConfigurationSourcesWriteStrategy#ALL ALL} write strategy.  */
+    public PrioritisedConfigurationSources() {
+        this(ConfigurationSourcesWriteStrategy.ALL);
     }
 
     /**
-     * Creates an instance with the configured {@link WriteStrategy write stategy} for writing configurations and the given list of
+     * Creates an instance with the {@link ConfigurationSourcesWriteStrategy#ALL ALL} write strategy and the given sources.
+     * @param sources The sources which must be in this prioritised list.
+     */
+    public PrioritisedConfigurationSources(ConfigurationSource... sources) {
+        this (ConfigurationSourcesWriteStrategy.ALL, sources);
+    }
+
+    /**
+     * Creates an instance with the configured {@link ConfigurationSourcesWriteStrategy write stategy} for writing configurations.
+     *
+     * @param writeStrategy The strategy to follow.
+     */
+    public PrioritisedConfigurationSources(ConfigurationSourcesWriteStrategy writeStrategy) {
+        this.writeStrategy = writeStrategy;
+        this.sortedConfigurations = new TreeSet<PrioritisedConfigurationSource>();
+        locks = new ReentrantReadWriteLock();
+        internalId = UUID.randomUUID();
+    }
+
+    /**
+     * Creates an instance with the configured {@link ConfigurationSourcesWriteStrategy write stategy} for writing configurations and the given list of
      * sources
      *
      * @param writeStrategy The strategy to follow.
      * @param sources       Array of source to add to this instance, where their priority is defined by the position in the given array.
      */
-    public SortedTreeSetConfigurationSource(WriteStrategy writeStrategy, ConfigurationSource... sources) {
+    public PrioritisedConfigurationSources(ConfigurationSourcesWriteStrategy writeStrategy, ConfigurationSource... sources) {
         this(writeStrategy);
         for (int priority = 0; priority < sources.length; priority++) {
             addSource(sources[priority], priority);
         }
-    }
-
-    /**
-     * Creates an instance with the configured {@link WriteStrategy write stategy} for writing configurations.
-     *
-     * @param writeStrategy The strategy to follow.
-     */
-    public SortedTreeSetConfigurationSource(WriteStrategy writeStrategy) {
-        this.writeStrategy = writeStrategy;
-        this.sortedConfigurations = new TreeSet<PrioritisedConfigurationSource>();
-        locks = new ReentrantReadWriteLock();
-        internalId = UUID.randomUUID();
     }
 
 
@@ -118,6 +107,10 @@ public class SortedTreeSetConfigurationSource implements PriorityOrderedSources 
         addSource(sortedConfig);
     }
 
+    /**
+     * Ads the given prioritised source to this set.
+     * @param source The prioritised source to add.
+     */
     private void addSource(PrioritisedConfigurationSource source) {
         Lock writeLock = locks.writeLock();
         try {
@@ -163,49 +156,10 @@ public class SortedTreeSetConfigurationSource implements PriorityOrderedSources 
         Lock writeLock = locks.writeLock();
         try {
             writeLock.lock();
-            if (writeStrategy == WriteStrategy.ALL) {
-                storeAll(key, value);
-            }
-
-            if (writeStrategy == WriteStrategy.HIGHEST) {
-                storeHighest(key, value);
-            }
-
-            if (writeStrategy == WriteStrategy.LOWEST) {
-                storeLowest(key, value);
-            }
+            ConfigurationSourcesWriter sourcesWriter = writeStrategy.getWriter();
+            sourcesWriter.store(key, value, sortedConfigurations);
         } finally {
             writeLock.unlock();
-        }
-    }
-
-    private void storeAll(String key, String value) {
-        for (PrioritisedConfigurationSource sortedSource : sortedConfigurations) {
-            if (sortedSource.isEncapsulatingWritable()) {
-                sortedSource.store(key, value);
-            }
-        }
-    }
-
-    private void storeHighest(String key, String value) {
-        for (PrioritisedConfigurationSource sortedSource : sortedConfigurations) {
-            if (sortedSource.isEncapsulatingWritable()) {
-                sortedSource.store(key, value);
-                break; // Stop after the first writable one has been found.
-            }
-        }
-    }
-
-    private void storeLowest(String key, String value) {
-        // To store on the lowest, we need to invert the ordering.
-        Comparator<Object> reverseOrder = Collections.reverseOrder();
-        TreeSet<PrioritisedConfigurationSource> reverseSet = new TreeSet<PrioritisedConfigurationSource>(reverseOrder);
-        reverseSet.addAll(this.sortedConfigurations);
-        for (PrioritisedConfigurationSource sortedSource : reverseSet) {
-            if (sortedSource.isEncapsulatingWritable()) {
-                sortedSource.store(key, value);
-                break; // Stop after the first writable one has been found.
-            }
         }
     }
 }

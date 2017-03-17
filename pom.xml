@@ -16,10 +16,16 @@
     </modules>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <maven.compiler.source>1.5</maven.compiler.source>
+        <maven.compiler.target>1.5</maven.compiler.target>
+
         <depedency.slf4j.version>1.7.24</depedency.slf4j.version>
         <dependency.junit.version>3.8.1</dependency.junit.version>
         <depedency.commons-lang3.version>3.5</depedency.commons-lang3.version>
         <dependency.commons-collections4.version>4.1</dependency.commons-collections4.version>
+        <depedency.lombok.version>1.16.14</depedency.lombok.version>
     </properties>
 
     <dependencies>
@@ -69,6 +75,13 @@
                 <artifactId>junit</artifactId>
                 <version>${dependency.junit.version}</version>
                 <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${depedency.lombok.version}</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -2,7 +2,7 @@ package com.github.scs;
 
 import com.github.scs.api.ConfigurationSource;
 import com.github.scs.api.PriorityOrderedSources;
-import com.github.scs.impl.SortedTreeSetConfigurationSource;
+import com.github.scs.impl.PrioritisedConfigurationSources;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -14,19 +14,21 @@ import org.slf4j.LoggerFactory;
  * Note, that configuration values may be sourced from various places which have been assigned a priority based on how the
  * configuration has been 'setup'.
  *
+ * TODO Rework this as a registry of configurations with a Global instance for general system.
  * @author Hendrik Louw
  * @since 2017-03-15.
  */
-public class SystemConfiguration {
+@SuppressWarnings({"SameParameterValue", "JavaDoc"})
+class SystemConfiguration {
 
     /** Default value if they key being retrieved is a string. */
-    public static final String DEFAULT_STRING_VALUE = "";
+    private static final String DEFAULT_STRING_VALUE = "";
 
     /** Default value if the key being retrieve is a number (int, long, etc). */
-    public static final Integer DEFAULT_NUMERIC_VALUE = -1;
+    private static final Integer DEFAULT_NUMERIC_VALUE = -1;
 
     /** Default value if the key being retrieved is a Boolean. */
-    public static final Boolean DEFAULT_BOOLEAN_VALUE = Boolean.FALSE;
+    private static final Boolean DEFAULT_BOOLEAN_VALUE = Boolean.FALSE;
 
     /**
      * String representations of all values which will be considered a true value.
@@ -38,13 +40,13 @@ public class SystemConfiguration {
      * <li>{@code "1"}</li>
      * </ul>
      */
-    public static final String[] BOOLEAN_TRUE_STRING_VALUES = new String[]{"Y", "YES", "T", "TRUE", "1"};
+    private static final String[] BOOLEAN_TRUE_STRING_VALUES = new String[]{"Y", "YES", "T", "TRUE", "1"};
 
     /** The logger we will use. */
     private static final Logger LOG = LoggerFactory.getLogger(SystemConfiguration.class);
 
     /** The sorted sources we will use to have the ability to have a priority. */
-    private static PriorityOrderedSources SORTED_SOURCES = new SortedTreeSetConfigurationSource();
+    private static PriorityOrderedSources SORTED_SOURCES = new PrioritisedConfigurationSources();
 
     /**
      * Same as {@link #retrieveInteger(String, Integer)} with the default value set to {@link #DEFAULT_NUMERIC_VALUE}
@@ -64,7 +66,7 @@ public class SystemConfiguration {
      * @param defaultValue The default value to return if the configuration item is not found or the value is not an integer.
      * @return The value of the given key, or the given default value if the configuration item is not found or the value does not represent an integer.
      */
-    public static Integer retrieveInteger(String key, Integer defaultValue) {
+    private static Integer retrieveInteger(String key, Integer defaultValue) {
         Integer valueInt = defaultValue;
         try {
             valueInt = retrieveIntegerEx(key, defaultValue);
@@ -86,7 +88,7 @@ public class SystemConfiguration {
      *
      * @throws NumberFormatException If the configuration item is found, but the string value does not represent an integer.
      */
-    public static Integer retrieveIntegerEx(String key, Integer defaultValue) throws NumberFormatException {
+    private static Integer retrieveIntegerEx(String key, Integer defaultValue) throws NumberFormatException {
         String valueStr = retrieveString(key);
         if (StringUtils.isBlank(valueStr)) {
             LOG.debug("Key[{}] - Value[{}] is blank, returning default value of [{}]", key, valueStr, defaultValue);
@@ -129,7 +131,7 @@ public class SystemConfiguration {
      * @param defaultValue The default value to return if the key is not configured or the value of the key is not a boolean value.
      * @return The value of the key being retrieved, or the default value.
      */
-    public static Boolean retrieveBoolean(String key, Boolean defaultValue) {
+    private static Boolean retrieveBoolean(String key, Boolean defaultValue) {
         // Retrieve the value as a string and then change it to a boolean.
         String valueStr = retrieveString(key);
         valueStr = valueStr.toUpperCase();
@@ -159,7 +161,7 @@ public class SystemConfiguration {
      * @return The String value of the key retrieved.
      */
 
-    public static String retrieveString(String key) {
+    private static String retrieveString(String key) {
         return retrieveString(key, DEFAULT_STRING_VALUE);
     }
 
@@ -170,7 +172,7 @@ public class SystemConfiguration {
      * @param defaultValue The default value if the key has not been defined in the configuration.
      * @return The value of the key, or the default value if the key has not been defined in the configuration.
      */
-    public static String retrieveString(String key, String defaultValue) {
+    private static String retrieveString(String key, String defaultValue) {
         LOG.trace("Retrieving value for key [{}] from configured sources", key);
         String value = SORTED_SOURCES.retrieve(key);
         if (StringUtils.isBlank(value)) {
@@ -186,7 +188,7 @@ public class SystemConfiguration {
      * @param key   The key of the configuration to store.
      * @param value The value of the configuration to store.
      */
-    public static void storeString(String key, String value) {
+    private static void storeString(String key, String value) {
         SORTED_SOURCES.store(key, value);
     }
 
@@ -214,6 +216,6 @@ public class SystemConfiguration {
      * Removes all the sources from the system configuration.
      */
     public static void dropAllSources() {
-        SORTED_SOURCES = new SortedTreeSetConfigurationSource();
+        SORTED_SOURCES = new PrioritisedConfigurationSources();
     }
 }

@@ -20,6 +20,6 @@ public interface ConfigurationSourcesWriter {
      * @param value The value of the configuration entry.
      * @param sources The sources which they value must be stored into if supported.
      */
-    void store(String key, String value, Collection<ConfigurationSource> sources);
+    void store(String key, String value, Collection<? extends ConfigurationSource> sources);
 
 }

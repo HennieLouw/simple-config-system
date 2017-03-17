@@ -18,13 +18,14 @@ import java.util.UUID;
  * @author Hendrik Louw
  * @since 2017-03-15.
  */
+@SuppressWarnings("WeakerAccess")
 public class PrioritisedConfigurationSource implements Comparable<PrioritisedConfigurationSource>, ConfigurationSource, WritableConfigurationSource {
 
     /** The priority value for the source, lower numbers are considered more important than higher. */
-    private int priority;
+    private final int priority;
 
     /** The source which this implementation is adding the priority meta data to. */
-    private ConfigurationSource underlyingSource;
+    private final ConfigurationSource underlyingSource;
 
     /**
      * Creates a new instance which will delegate to the underlying source.
@@ -59,12 +60,8 @@ public class PrioritisedConfigurationSource implements Comparable<PrioritisedCon
         return compareTo.toComparison();
     }
 
-    public boolean isEncapsulatingWritable() {
-        return underlyingSource instanceof WritableConfigurationSource;
-    }
-
     public void store(String key, String value) {
-        if (isEncapsulatingWritable()) {
+        if (underlyingSource instanceof WritableConfigurationSource) {
             WritableConfigurationSource writableSource = (WritableConfigurationSource) this.underlyingSource;
             writableSource.store(key, value);
         }

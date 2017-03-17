@@ -1,14 +1,17 @@
 package com.github.scs.impl;
 
 import com.github.scs.api.ConfigurationSource;
-import com.github.scs.api.PriorityOrderedSources;
 import com.github.scs.api.WritableConfigurationSource;
+import com.github.scs.util.collections.PrioritisedSourceCastTransformer;
 import com.github.scs.util.collections.PrioritisedSourcePredicate;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.functors.AndPredicate;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.TreeSet;
 
 /**
  * Extension of the {@link SimpleSourcesWriter} which will ensure the following.
@@ -22,38 +25,81 @@ import java.util.Comparator;
  * @see PrioritisedConfigurationSource
  * @see PrioritisedConfigurationSource#compareTo(PrioritisedConfigurationSource)
  */
+@SuppressWarnings("WeakerAccess")
 public class PrioritisedSourcesWriter extends SimpleSourcesWriter {
 
-    /** Mutator value for ascending. */
-    private static final int MUTATOR_ASC = 1;
+    /** Instance of the prioritised writer for writing to the source with the highest priority only. */
+    public static final PrioritisedSourcesWriter HIGHEST = new PrioritisedSourcesWriter(Order.ASCENDING);
 
-    /** Mutator value for descending. */
-    private static final int MUTATOR_DESC = -1;
+    /** Instance of the prioritised writer for writing to the source with the lowest priority only. */
+    public static final PrioritisedSourcesWriter LOWEST = new PrioritisedSourcesWriter(Order.DESCENDING);
 
-    /** Value which is used to order ascending or descending on the natual ordering of a prioritised configuration source. */
-    private final int orderMutator;
+    /** Enumeration of our supported order. */
+    public enum Order {
+        ASCENDING (1),
+        DESCENDING(-1);
+
+        public final int mutator;
+
+        Order(int mutator) {
+            this.mutator = mutator;
+        }
+    }
+
+    /** Enum defining the order we will write in, Ascending or Descending. */
+    private final Order order;
 
     /** Internal comparator we use for our ordering. */
-    private final Comparator<PrioritisedConfigurationSource> order = new Order();
+    private final OrderComparator orderComparator = new OrderComparator();
+
+    /**
+     * Creates a new instance which will update the first configuration source, once they have been ordered
+     * in the given order.
+     * @param order The order in which the sources which will be updated will be placed.
+     */
+    private PrioritisedSourcesWriter(Order order) {
+        this.order = order;
+    }
 
     @Override
     protected Predicate<ConfigurationSource> definePredicate() {
-        return new AndPredicate<ConfigurationSource>(PrioritisedSourcePredicate.INSTANCE, );
-        return super.definePredicate();
+        // Create a new FirstOnly Predicate for each call, as each call relates to a single set of sources being updated.
+        return new AndPredicate<ConfigurationSource>(PrioritisedSourcePredicate.INSTANCE, new FirstOnlyPredicate());
     }
 
     @Override
-    protected Collection<WritableConfigurationSource> collectWritable(Collection<ConfigurationSource> sources) {
-        return super.collectWritable(sources);
+    protected Collection<WritableConfigurationSource> collectWritable(Collection<? extends ConfigurationSource> sources) {
+        // First we will need to filter and re-orderComparator only the prioritised items based on their priority.
+        Collection<ConfigurationSource> filteredSources = CollectionUtils.select(sources, PrioritisedSourcePredicate.INSTANCE);
+
+        // Re-orderComparator using our internal comparator.
+        TreeSet<PrioritisedConfigurationSource> orderedSources = new TreeSet<PrioritisedConfigurationSource>(orderComparator);
+        CollectionUtils.collect(filteredSources, PrioritisedSourceCastTransformer.INSTANCE, orderedSources);
+
+        // Now we will select only the first item and return that as our set of writable entries.
+        ArrayList<WritableConfigurationSource> writable = new ArrayList<WritableConfigurationSource>(1);
+        PrioritisedConfigurationSource first = orderedSources.first();
+        writable.add(first);
+        return writable;
     }
 
+    /** Predicate which will only provide the first item. */
+    private class FirstOnlyPredicate implements Predicate<ConfigurationSource> {
+        private boolean firstRun = true;
 
-    private class
+        public boolean evaluate(ConfigurationSource object) {
+            if (firstRun) {
+                firstRun = false;
+                return true;
+            }
+            return false;
+        }
+    }
 
-    /** Internal comparator to support order manipulation. */
-    private class Order implements Comparator<PrioritisedConfigurationSource> {
+    /** Internal comparator to support orderComparator manipulation. */
+    private class OrderComparator implements Comparator<PrioritisedConfigurationSource> {
         public int compare(PrioritisedConfigurationSource lhs, PrioritisedConfigurationSource rhs) {
-            return (lhs.compareTo(rhs)) * orderMutator;
+            return (lhs.compareTo(rhs)) * order.mutator;
         }
     }
 

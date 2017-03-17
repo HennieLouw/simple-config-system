@@ -16,7 +16,7 @@ import org.apache.commons.collections4.Transformer;
 public class WritableSourceCastTransformer implements Transformer<ConfigurationSource, WritableConfigurationSource> {
 
     /** Global Instance for ease of use. */
-    public static WritableSourceCastTransformer INSTANCE = new WritableSourceCastTransformer();
+    public static final WritableSourceCastTransformer INSTANCE = new WritableSourceCastTransformer();
 
     public WritableConfigurationSource transform(ConfigurationSource input) {
         return (WritableConfigurationSource) input;

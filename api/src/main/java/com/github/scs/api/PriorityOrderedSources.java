@@ -1,5 +1,8 @@
 package com.github.scs.api;
 
+import com.github.scs.impl.ConfigurationSourcesWriteStrategy;
+import com.github.scs.impl.ConfigurationSourcesWriter;
+
 /**
  * An abstraction of a collection of sources which have a ordered priority to them where a configuration entry will be retrieved from the source with the
  * highest priority before before attempting to retrieve it from lower priority sources.
@@ -7,7 +10,8 @@ package com.github.scs.api;
  * Note: The behavior of the operation {@link ConfigurationSource#retrieve(String)} with two sources that have been given the same priority is considered
  * implementation specific and my be nondeterministic.
  * <p>
- * Additionally, the interface provides no contract for the behaviour of {@link WritableConfigurationSource#store(String, String)}.
+ * Additionally, the interface provides no contract for the behaviour of {@link WritableConfigurationSource#store(String, String)} but suggest that
+ * implementations follow the {@link ConfigurationSourcesWriteStrategy} and {@link ConfigurationSourcesWriter} principals.
  *
  * @author Hendrik Louw.
  * @since 2017-03-15.
@@ -20,7 +24,7 @@ public interface PriorityOrderedSources extends WritableConfigurationSource {
      * @param source   The source which must be registered.
      * @param priority The priority of the source, i.e. values for keys with a lower priority take precedence.
      */
-    public void addSource(ConfigurationSource source, int priority);
+    void addSource(ConfigurationSource source, int priority);
 
     /**
      * Removes the given {@link ConfigurationSource configuration source} from this set of registered sources.
@@ -28,12 +32,12 @@ public interface PriorityOrderedSources extends WritableConfigurationSource {
      *
      * @param source The source instance which must be removed.
      */
-    public void removeSource(ConfigurationSource source);
+    void removeSource(ConfigurationSource source);
 
     /**
      * Removes all the underlying sources which have been configured for this priority ordered set of sources.
      */
-    public void removeAllSources();
+    void removeAllSources();
 
 }
 

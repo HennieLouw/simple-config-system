@@ -15,6 +15,9 @@ import org.apache.commons.collections4.Transformer;
  */
 public class PrioritisedSourceCastTransformer implements Transformer<ConfigurationSource, PrioritisedConfigurationSource> {
 
+    /** Global instance of ease of use. */
+    public static final PrioritisedSourceCastTransformer INSTANCE = new PrioritisedSourceCastTransformer();
+
     public PrioritisedConfigurationSource transform(ConfigurationSource input) {
         return (PrioritisedConfigurationSource) input;
     }

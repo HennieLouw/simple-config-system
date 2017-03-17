@@ -28,11 +28,11 @@
             <artifactId>commons-collections4</artifactId>
         </dependency>
 
-
+        <!-- Lom bok for easy code generation. -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

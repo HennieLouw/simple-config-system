@@ -18,8 +18,12 @@ import java.util.Collection;
  * @author Hendrik Louw
  * @since 2017-03-16.
  */
+@SuppressWarnings("WeakerAccess")
 public class SimpleSourcesWriter implements ConfigurationSourcesWriter {
 
+    /** Global instance for ease of use. */
+    @SuppressWarnings("WeakerAccess")
+    public static final SimpleSourcesWriter INSTANCE = new SimpleSourcesWriter();
 
     /**
      * Defines the predicate which will be used to determine which of the sources in the client given list will be updated.
@@ -44,7 +48,7 @@ public class SimpleSourcesWriter implements ConfigurationSourcesWriter {
      *
      * @see #definePredicate()
      */
-    protected Collection<WritableConfigurationSource> collectWritable(Collection<ConfigurationSource> sources) {
+    protected Collection<WritableConfigurationSource> collectWritable(Collection<? extends ConfigurationSource> sources) {
         WritableSourcePredicate writable = WritableSourcePredicate.INSTANCE;
         Predicate<ConfigurationSource> validForUpdate = definePredicate();
         if (validForUpdate == null) {
@@ -56,7 +60,7 @@ public class SimpleSourcesWriter implements ConfigurationSourcesWriter {
         return CollectionUtils.collect(writableSources, WritableSourceCastTransformer.INSTANCE);
     }
 
-    public void store(String key, String value, Collection<ConfigurationSource> sources) {
+    public void store(String key, String value, Collection<? extends ConfigurationSource> sources) {
         if (StringUtils.isBlank(key)) {
             throw new IllegalArgumentException("Key of configuration entry is not allowed to be blank.");
         }
