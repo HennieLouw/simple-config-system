@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>impl-caching</artifactId>
+    <artifactId>scs-impl-caching</artifactId>
     <description>Module containing caching implementations of Configuration Sources which support caching.</description>
 
     <properties>
