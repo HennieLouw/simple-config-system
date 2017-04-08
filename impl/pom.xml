@@ -13,5 +13,10 @@
     <name>scs-impl</name>
     <url>http://maven.apache.org</url>
     <dependencies>
+        <dependency>
+            <groupId>com.github.scs</groupId>
+            <artifactId>scs-api</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>

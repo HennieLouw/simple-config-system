@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>scs-parent</artifactId>
+        <groupId>com.github.scs</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>impl-caching</artifactId>
+    <description>Module containing caching implementations of Configuration Sources which support caching.</description>
+
+    <properties>
+        <depedency.ehcache.version>2.10.3</depedency.ehcache.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.github.scs</groupId>
+            <artifactId>scs-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>${depedency.ehcache.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>
