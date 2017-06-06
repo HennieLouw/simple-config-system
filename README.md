@@ -2,9 +2,9 @@
 
 ## Introduction
 
-A Java framework to read and update an configuration entries which is being used in your 
-application with support for many different 'sources' where the configuration values can 
-come from with ability to update the internal setup of the framework during runtime. 
+A Java framework to read and update configuration entries which is being used in your application with support for 
+many different 'sources' where the configuration values can come from with ability to update the internal setup of 
+the framework during runtime. 
 
 Generic implementations of 'common' types of sources are also provided for ease of use.
 
@@ -16,7 +16,7 @@ enterprise systems where the version of Java may be restricted to older versions
 The Framework is broken down into three main maven dependencies.
  - scs-parent - The parent pom.
  - scs-api - The base framework and minimal implementations.
- - scs-impl - Various implementations for ease of use.
+ - scs-impl - Meta dependency to include all sub implementation modules, such as caching, database, text expansion, etc.
  
 ### SCS-PARENT
 Maven POM to build the project from source.
@@ -25,7 +25,7 @@ Maven POM to build the project from source.
 Maven JAR Artifact which provides the base framework for configuration instances including a
 Thread safe memory base implementation.
 
-#### Usage
+##### Usage
 The main class into the API is the ```com.github.scs.Configuration``` which provides a builder 
 pattern for creating configuration instances and defining sources.
 
@@ -54,14 +54,38 @@ public class ConfigurationBuilderUsage {
 }
 ```
 
-#### Maven Dependency
+##### Maven Dependency
 ```xml
 <dependency>
     <groupId>com.github.scs</groupId>
     <artifactId>scs-api</artifactId>
-    <version>1.0</version>
+    <version>${scs.version}</version>
 </dependency>
 ```
 
 ### SCS-IMPL
 TODO
+
+### SCS-IMPL-CACHING
+Maven module which provides caching implementations of the ```com.github.scs.api.ConfigurationSource```  interface.
+
+The following implementations are provided at the moment
+
+ - ```com.github.scs.impl.EHCachedConfigurationSource``` Implementation of a ```ConfigurationSource``` which first will 
+   delegate the retrieve operation to the configured underlying source and then cache the result of this delegation 
+   based on the caching configuration. This implementation supports both programmatic as well as external EHCache 
+   configurations.
+ 
+ - ```com.github.scs.impl.MemoryCachedConfigurationSource``` - Simpler API version of the 
+   ```EHCachedConfigurationSource``` which configures the cache to use memory only with some sane defaults for max 
+   entries, time-to-live and time-to-idle. For more complex caching requirements it is adivsed to use the more generic
+   ```EHCachedConfigurationSource```
+ 
+ ##### Maven Dependency
+ ```xml
+ <dependency>
+     <groupId>com.github.scs</groupId>
+     <artifactId>scs-impl-caching</artifactId>
+     <version>${scs.version}</version>
+ </dependency>
+ ```
