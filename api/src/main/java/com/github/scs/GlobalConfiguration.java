@@ -5,11 +5,13 @@ import com.github.scs.api.ConfigurationSource;
 import com.github.scs.impl.MemoryConfigurationSource;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 /**
- * Utility class which provides a 'global' configuration object which allows for easy access within an application without the need to
- * pass a specific {@link Configuration} instance around.
+ * Utility class which provides a 'global' configuration object which allows for easy access within an application
+ * without the need to pass a specific {@link Configuration} instance around.
  * <p>
  * The class also allows you to configure the global configuration source with your list of sources.
  *
@@ -51,12 +53,11 @@ public class GlobalConfiguration {
     private static Configuration buildGlobal(ConfigurationDefaults defaults) {
         // We only providing the defaults, so use the memory source as our source.
         ConfigurationSource memorySource = new MemoryConfigurationSource();
-        List<ConfigurationSource> sources = Arrays.asList(memorySource);
+        List<ConfigurationSource> sources = Collections.singletonList(memorySource);
         return buildGlobal(defaults, sources);
     }
 
     private static Configuration buildGlobal(ConfigurationDefaults defaults, List<ConfigurationSource> sources) {
         return new Configuration(CONFIGURATION_NAME, defaults, sources);
     }
-
 }

@@ -141,7 +141,6 @@ public class Configuration implements PriorityOrderedSources {
      * @param key   The key of configuration item.
      * @param value The integer value of the configuration item or {@code #DEFAULT_NUMERIC_VALUE} if null.
      */
-    @SuppressWarnings("deprecation")
     public void storeInteger(String key, Integer value) {
         if (value == null) {
             value = defaults.getDefaultInteger();
@@ -149,6 +148,7 @@ public class Configuration implements PriorityOrderedSources {
 
         // Explicit use of ObjectUtils.toString to support Java 5 clients.
         // Can in the future be replaced with Objects.toString(String, String)
+        @SuppressWarnings("deprecation")
         String valueStr = ObjectUtils.toString(value, null);
         store(key, valueStr);
     }
@@ -185,7 +185,6 @@ public class Configuration implements PriorityOrderedSources {
      * @param key   The key of the configuration which is being stored.
      * @param value The value of the configuration which is being stored
      */
-    @SuppressWarnings("deprecation")
     public void storeBoolean(String key, Boolean value) {
         if (value == null) {
             Boolean defaultBoolean = defaults.getDefaultBoolean();
@@ -195,6 +194,7 @@ public class Configuration implements PriorityOrderedSources {
 
         // Explicit use of ObjectUtils.toString to support Java 5 clients.
         // Can in the future be replaced with Objects.toString(String, String)
+        @SuppressWarnings("deprecation")
         String valueStr = ObjectUtils.toString(value, null);
         storeInternal(key, valueStr);
     }

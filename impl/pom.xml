@@ -17,9 +17,12 @@
             <groupId>com.github.scs</groupId>
             <artifactId>scs-api</artifactId>
         </dependency>
+
+        <!-- Lom bok for easy code generation. -->
         <dependency>
-            <groupId>com.github.scs</groupId>
-            <artifactId>scs-impl-caching</artifactId>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

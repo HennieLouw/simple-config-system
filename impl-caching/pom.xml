@@ -13,13 +13,17 @@
     <description>Module containing caching implementations of Configuration Sources which support caching.</description>
 
     <properties>
-        <depedency.ehcache.version>2.10.3</depedency.ehcache.version>
+
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.github.scs</groupId>
             <artifactId>scs-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.scs</groupId>
+            <artifactId>scs-impl</artifactId>
         </dependency>
 
         <dependency>
@@ -31,6 +35,12 @@
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
             <version>${depedency.ehcache.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${dependency.guava.version}</version>
         </dependency>
     </dependencies>
 

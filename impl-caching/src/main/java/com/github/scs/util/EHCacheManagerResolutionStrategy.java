@@ -11,13 +11,13 @@ import net.sf.ehcache.CacheManager;
  * @author Hendrik Louw
  * @since 2017-06-02
  */
-public interface CacheManagerResolutionStrategy {
+public interface EHCacheManagerResolutionStrategy {
 
     /** Strategy which provides a new cache manager for each call to {@link #resolveCacheManager()} */
-    CacheManagerResolutionStrategy NEW_EMPTY_MANAGER = new EmptyCacheManagerStrategy();
+    EHCacheManagerResolutionStrategy NEW_EMPTY_MANAGER = new EmptyCacheManagerStrategy();
 
     /** Strategy which provides a single instance for all calls to {@link #resolveCacheManager()} */
-    CacheManagerResolutionStrategy SINGLETON = new SingletonCacheManagerStrategy();
+    EHCacheManagerResolutionStrategy SINGLETON = new SingletonCacheManagerStrategy();
 
     /**
      * Resolves the cache manager which must be used when a {@link EHCachedConfigurationSource}
@@ -39,17 +39,13 @@ public interface CacheManagerResolutionStrategy {
      * @author Hendrik Louw.
      * @since 2017-06-02
      */
-    class EmptyCacheManagerStrategy implements CacheManagerResolutionStrategy {
+    class EmptyCacheManagerStrategy implements EHCacheManagerResolutionStrategy {
 
         private EmptyCacheManagerStrategy() {
         }
 
         public CacheManager resolveCacheManager() {
             return CacheManager.create();
-        }
-
-        public static void main(String[] args) {
-            CacheManager manager = CacheManager.create();
         }
     }
 
@@ -65,7 +61,7 @@ public interface CacheManagerResolutionStrategy {
      * @author Hendrik Louw
      * @since 2017-06-02
      */
-    class SingletonCacheManagerStrategy implements CacheManagerResolutionStrategy {
+    class SingletonCacheManagerStrategy implements EHCacheManagerResolutionStrategy {
 
         /** The cache manager we will be using. */
         private final CacheManager cacheManager;

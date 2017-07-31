@@ -2,7 +2,7 @@ package com.github.scs.impl;
 
 import com.github.scs.api.ConfigurationSource;
 import com.github.scs.api.WritableConfigurationSource;
-import com.github.scs.util.CacheManagerResolutionStrategy;
+import com.github.scs.util.EHCacheManagerResolutionStrategy;
 import lombok.Getter;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -14,9 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * <p>An implementation of a configuration source which uses EHCache to cache the values retrieved from the underlying
@@ -28,7 +25,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author Hendrik Louw
  * @since 2017-06-02
  */
-public class EHCachedConfigurationSource implements WritableConfigurationSource {
+public class EHCachedConfigurationSource extends AbstractThreadSafeConfigurationSource {
 
     /** Logger we will use. */
     private static final Logger LOG = LoggerFactory.getLogger(EHCachedConfigurationSource.class);
@@ -48,21 +45,15 @@ public class EHCachedConfigurationSource implements WritableConfigurationSource 
     /** The uuid of this source. */
     private UUID uuid;
 
-    /**
-     * Read write lock we use to ensure we don't refresh the cache until the underlying configuration source
-     * has had an opportunity to write the new value.
-     */
-    private ReadWriteLock locks = new ReentrantReadWriteLock();
-
     public EHCachedConfigurationSource(ConfigurationSource underlyingSource,
-                                       CacheManagerResolutionStrategy resolutionStrategy,
+                                       EHCacheManagerResolutionStrategy resolutionStrategy,
                                        String cacheName) {
         CacheConfiguration temporalConfig = new CacheConfiguration(cacheName, 0);
         initialise(underlyingSource, resolutionStrategy, temporalConfig, false);
     }
 
     public EHCachedConfigurationSource(ConfigurationSource underlyingSource,
-                                       CacheManagerResolutionStrategy resolutionStrategy,
+                                       EHCacheManagerResolutionStrategy resolutionStrategy,
                                        int maxEntries,
                                        long timeToLiveSeconds,
                                        long timeToIdleSeconds) {
@@ -71,13 +62,38 @@ public class EHCachedConfigurationSource implements WritableConfigurationSource 
     }
 
     public EHCachedConfigurationSource(ConfigurationSource underlyingSource,
-                                       CacheManagerResolutionStrategy resolutionStrategy,
+                                       EHCacheManagerResolutionStrategy resolutionStrategy,
                                        CacheConfiguration cacheConfiguration) {
         initialise(underlyingSource, resolutionStrategy, cacheConfiguration, true);
     }
 
+    public UUID getUUID() {
+        return uuid;
+    }
+
+    @Override
+    protected void storeInternal(String key, String value) {
+        if (underlyingSource instanceof WritableConfigurationSource) {
+            ((WritableConfigurationSource) underlyingSource).store(key, value);
+            cache.remove(key);
+        }
+    }
+
+    @Override
+    protected String retrieveInternal(String key) {
+        Element cacheElement = cache.get(key);
+        if (cacheElement == null) {
+            String value = underlyingSource.retrieve(key);
+            cacheElement = new Element(key, value);
+            cache.put(cacheElement);
+        }
+
+        Object objectValue = cacheElement.getObjectValue();
+        return String.valueOf(objectValue);
+    }
+
     private void initialise(ConfigurationSource underlyingSource,
-                            CacheManagerResolutionStrategy resolutionStrategy,
+                            EHCacheManagerResolutionStrategy resolutionStrategy,
                             CacheConfiguration cacheConfiguration,
                             boolean registerCacheWithManager) {
 
@@ -100,6 +116,14 @@ public class EHCachedConfigurationSource implements WritableConfigurationSource 
         }
     }
 
+    /**
+     * Builds an EH Cache Configuration instance from the given parameters.
+     *
+     * @param maxEntries        The max number of entries in the cache.
+     * @param timeToLiveSeconds The time to live in seconds.
+     * @param timeToIdleSeconds The time to idle in seconds.
+     * @return EH Cache configuration object which can be used to create a cache.
+     */
     private CacheConfiguration configuration(int maxEntries, long timeToLiveSeconds, long timeToIdleSeconds) {
         CacheConfiguration cacheConfiguration = new CacheConfiguration(String.valueOf(uuid), maxEntries);
         cacheConfiguration.setMaxEntriesInCache(maxEntries);
@@ -116,48 +140,5 @@ public class EHCachedConfigurationSource implements WritableConfigurationSource 
         cacheConfiguration.timeToLiveSeconds(timeToLiveSeconds);
         cacheConfiguration.timeToIdleSeconds(timeToIdleSeconds);
         return cacheConfiguration;
-    }
-
-    public UUID getUUID() {
-        return uuid;
-    }
-
-    public String retrieve(String key) {
-        Lock readLock = locks.readLock();
-        try {
-            readLock.lock();
-            return retrieveLocked(key);
-        } finally {
-            readLock.unlock();
-        }
-    }
-
-    private String retrieveLocked(String key) {
-        Element cacheElement = cache.get(key);
-        if (cacheElement == null) {
-            String value = underlyingSource.retrieve(key);
-            cacheElement = new Element(key, value);
-            cache.put(cacheElement);
-        }
-
-        Object objectValue = cacheElement.getObjectValue();
-        return String.valueOf(objectValue);
-    }
-
-    public void store(String key, String value) {
-        Lock writeLock = locks.writeLock();
-        try {
-            writeLock.lock();
-            storeLocked(key, value);
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
-    private void storeLocked(String key, String value) {
-        if (underlyingSource instanceof WritableConfigurationSource) {
-            ((WritableConfigurationSource) underlyingSource).store(key, value);
-        }
-        cache.remove(key);
     }
 }

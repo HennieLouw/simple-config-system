@@ -19,7 +19,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <maven.compiler.source>1.5</maven.compiler.source>
+        <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.5</maven.compiler.target>
 
         <depedency.slf4j.version>1.7.24</depedency.slf4j.version>
@@ -27,6 +27,10 @@
         <depedency.commons-lang3.version>3.5</depedency.commons-lang3.version>
         <dependency.commons-collections4.version>4.1</dependency.commons-collections4.version>
         <depedency.lombok.version>1.16.14</depedency.lombok.version>
+
+        <!-- Libs used in the caching module -->
+        <depedency.ehcache.version>2.10.3</depedency.ehcache.version>
+        <dependency.guava.version>22.0</dependency.guava.version>
     </properties>
 
     <dependencies>
@@ -50,6 +54,11 @@
             <dependency>
                 <groupId>com.github.scs</groupId>
                 <artifactId>scs-api</artifactId>
+                <version>1.0-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.scs</groupId>
+                <artifactId>scs-impl</artifactId>
                 <version>1.0-SNAPSHOT</version>
             </dependency>
             <dependency>
